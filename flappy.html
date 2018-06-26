@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Play FlappyBall!</title>
+	<style type="text/css">
+        body{
+            background-color: gray;
+        }
+		canvas{
+            border: 3px solid green;
+            background-color: black;
+        }
+        #title{
+            color: white;
+            font-family: Arial;
+            font-size: 20px;
+        }
+        #points{
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            color: lime;
+            font-family: Arial;
+            font-size: 70px;
+            opacity: 0.5;
+        }
+        #gameOver{
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: #6b6b6b;
+            opacity: 0.5;
+            color: lime;
+            font-family: Arial;
+            font-size: 50px;
+            display: none;
+        }
+        #playAgain{
+            background-color: #51bf16;
+            color: #878787;
+            font-family: Arial; 
+        }
+        #icon{
+            position: absolute;
+            opacity: 0;
+            top:200px;
+            left:500px;
+        }
+	</style>
+    
+</head>
+<body>
+<center>
+    <canvas></canvas>
+    <h1 id="points"> Tap space to play! </h1>
+    <div id = "gameOver">
+        <center>
+            <h1>GAME OVER!</h1>
+            <h3>Youre Score:</h3>
+            <h2 id="finall"></h2>
+            <div id = "playAgain">
+            <h3>Hit space to play again!</h3>
+            </div>
+        </center>
+    </div>
+    <img id = "icon" src="https://png.icons8.com/cotton/2x/hearts.png">
+</center>
+<script>
+    
+
+var arena = document.querySelector('canvas'),
+    score = document.getElementById('points'),
+    finallScore = document.getElementById('finall'),
+    endScreen = document.getElementById('gameOver'),
+    img = document.getElementById('icon');
+   
+console.log(score);
+arena.width = 1000;
+arena.height = 600;
+
+
+
+var points = 0;
+var c = arena.getContext('2d');
+var x = 500, y = 300, obst1, obst2, obst3, i = 0, j = 200 ;
+var isPressed = false, gamePaused = true, gameIsOver = false, heart = false;
+
+window.addEventListener("keydown", function (e) {
+    if (e.keyCode == 32 && !isPressed) {
+        console.log("jump");
+        y -= 50;
+        isPressed = true;
+        gamePaused = false;
+        if (gameIsOver) location.reload();
+    }
+});
+window.addEventListener("keyup", function (e) {
+    if (e.keyCode == 32 && isPressed) {
+        isPressed = false;
+    }
+});
+
+function gameOver() {
+    gameIsOver = true;
+    finallScore.innerHTML = points;
+    endScreen.style.display = "block"; 
+    score.style.display = "none";
+
+}
+
+
+function obst(dx) {
+    this.x = dx;
+    this.winy = 100 + Math.random() * 200;
+    this.create =  function() {
+        c.beginPath();
+        c.rect(this.x, 0, 60, 600);
+        c.fillStyle = "gray";
+        c.fill();
+        c.beginPath();
+        c.rect(this.x, this.winy, 60, 150);
+        c.fillStyle = "black";
+        c.fill();
+    }
+    this.checkCollision = function () {
+        if (x > this.x && x < this.x+60){
+        if (y-15 > this.winy && y+15 < this.winy+150){
+            if (x == this.x+56){
+            points ++;
+            }
+        }else{
+            gameOver();
+        }
+    }
+    }
+}
+
+obst1 = new obst(1000);
+obst2 = new obst(1336);
+obst3 = new obst(1668);
+function animate() {
+    requestAnimationFrame(animate);
+    c.clearRect(0, 0, 1000, 600);
+
+//Add rect
+    obst1.create();
+    obst2.create();
+    obst3.create();
+    obst1.checkCollision();
+    obst2.checkCollision();
+    obst3.checkCollision();
+
+    if(points % 10 == 0 && points>0){
+        heart = true;
+    }
+    if (heart) {
+        if(j > -200){
+        i += 0.008;
+        j -= 2;
+        img.style.opacity = i.toString();
+        img.style.top = j.toString()+"px";
+        }else{
+        img.style.opacity = "0";
+        img.style.top = "200px";
+        heart = false;
+        i = 0;
+        j = 200;
+        }
+    }     
+
+    if (!gameIsOver) {
+    c.beginPath();
+    c.arc(x,y,30,0,2*Math.PI);
+    c.fillStyle = "orange";
+    c.fill();
+    }
+
+    if (y < 0 || y > 600) {
+        gameOver();
+    }
+
+
+    if (obst1.x < -60){
+        obst1 = new obst(1000);
+    }
+    if (obst2.x < -60){
+        obst2 = new obst(1000);
+    }
+    if (obst3.x < -60){
+        obst3 = new obst(1000);
+    }
+
+    if(!gamePaused){
+        y += 2;
+        obst1.x -= 4;
+        obst2.x -= 4;
+        obst3.x -= 4;
+        score.innerHTML = points;
+    }    
+}
+
+
+animate();
+
+
+
+</script>
+
+</body>
+</html>

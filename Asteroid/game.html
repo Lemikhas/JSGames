@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Play Asteroids</title>
+</head>
+<style type="text/css">
+  body{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#image{
+  position: fixed;
+  background:url(space.jpg);
+  width: 1000px;
+  height: 800px;
+}
+#image1{
+  position: fixed;
+  background:url(space.jpg);
+  width: 1000px;
+  height: 800px;
+  top: -800px;
+}
+
+</style>
+<body bgcolor="gray">
+<h1
+	style="position:absolute;
+		   left: 80px;
+
+	">Points:</h1>
+<h1 id="points" 
+	style="position:absolute;
+		   left: 100px;
+		   top: 60px;
+	"></h1>
+<div id="hpshadow" 
+  style=" 
+     position:absolute;
+     background-color:darkgray; 
+     width: 50px; 
+     height: 400px; 
+    ">
+<div id="hp" 
+	style="	
+		 position:absolute;
+		 background-color:red; 
+		 width: 50px; 
+		 height: 400px; 
+		">
+<center><p>HP</p></center>
+</div></div>
+<center>
+<div id="main"
+	style="	
+		 position: relative;
+		 background-color: black; 
+		 width: 1000px; 
+		 height: 800px; 
+		">
+    <div id="image"></div>
+    <div id="image1"></div>
+
+	<div id='player'
+	 style="
+		 position:absolute;
+		 width: 100px; 
+		 height: 80px;
+		 left: 10px;
+		 top: 700px;  
+	">
+   <img src="ship.png" alt="on" width="100" height="100"> 
+  </div>
+
+</div>
+</center>
+
+<script type="text/javascript">
+var speed = 0.5;
+var hit = false;
+var hp = 400;	
+var pnumber = 0;
+// Getting 'player' div in js hands
+var player = document.getElementById('player');
+var hpbar = document.getElementById('hp');
+var points = document.getElementById('points');
+// Creating function that will tell the position of cursor
+// PageX and PageY will getting position values and show them in P
+function tellPos(p){
+  	if(p.pageX>340 && p.pageX<1240){
+  player.style.left = (p.pageX - 340) + 'px' ;
+	}
+}
+//_________________________________________________________________________
+
+
+
+//_________________________________________________________________________
+
+function shoot(p){
+var bullet = document.createElement("bullet");
+bullet.style.width = "10px";
+bullet.style.height = "50px";
+bullet.style.background = "yellow";
+bullet.style.position = "absolute";
+bullet.style.left = (p.pageX - 295) + 'px';
+bullet.style.top = "700px";
+document.getElementById("main").appendChild(bullet);
+
+  var pos = 700;
+  var id = setInterval(frame, 5);
+  function frame() {
+    if (pos == 0) {
+
+      clearInterval(id);
+      bullet.parentNode.removeChild(bullet);
+      isbullet = false;
+
+    } else if(collide(bullet, div)==true){
+
+      hit = true;
+
+    } else {
+
+      pos-=20; 
+      bullet.style.top = pos + 'px';
+    
+    }
+  }
+}
+
+//_____________________________________________________________________
+
+function alien(){
+var random = Math.floor(Math.random() * 900);
+var randmet = Math.floor(Math.random() * 3);
+div = document.createElement("div");
+div.style.background = "url(meteor"+randmet+".png)";
+div.style.backgroundRepeat = "no-repeat";
+div.style.width = "110px";
+div.style.height = "100px";
+div.style.position = "absolute";
+div.style.left = random + "px";
+//div.style.borderRadius= "50%";
+
+document.getElementById("main").appendChild(div);
+  
+  
+  var pos = 0;
+  var id = setInterval(frame, 5);
+  function frame() {
+    if (pos >= 700) {
+     clearInterval(id);
+     div.parentNode.removeChild(div);
+     speed += 0.1;
+     pnumber += 10; 
+     points.innerHTML = pnumber;
+     alien();
+    }else if(hit==true){
+    	hit = false;
+     	clearInterval(id);
+     	div.parentNode.removeChild(div);
+     	speed += 0.1;
+     	pnumber += 25;
+     	points.innerHTML = pnumber;
+     	alien();
+     	
+
+    } else if(collide(player, div)==true){
+    	hp-=40;
+     clearInterval(id);
+     div.parentNode.removeChild(div);
+     hpbar.style.height = hp + 'px';
+     if(speed>=1){
+        speed /= 2;
+ 		}
+ 	 if(hp==0){
+ 		alert("GAME OVER\nScore:"+pnumber+".");
+ 		window.location.href = "menu.html";
+ 		}
+     alien();
+
+    } else {
+      pos+=speed; 
+      div.style.top = pos + 'px';
+     }
+  }
+}
+var poscr = 0;
+var poscr1 = -800;
+
+function scroll(){
+  poscr += speed;
+  poscr1 += speed;
+  image.style.top = poscr + 'px';
+  image1.style.top = poscr1 + 'px';
+  if (poscr >= 800) {
+    poscr = -800;
+    image.style.top = "-800px";
+  }else if (poscr1 >= 800) {
+    poscr1 = -800;
+    image1.style.top = "-800px";
+  }
+}
+
+
+//COLISION_START__________________________________________________________
+
+
+  function collide(el1, el2) {
+    var rect1 = el1.getBoundingClientRect();
+    var rect2 = el2.getBoundingClientRect();
+
+    return !(
+      rect1.top > rect2.bottom ||
+      rect1.right < rect2.left ||
+      rect1.bottom < rect2.top ||
+      rect1.left > rect2.right
+    );
+  }
+
+
+//COLISION_END__________________________________________________________
+
+
+
+alien(); 
+var idscroll = setInterval(scroll, 5);
+
+addEventListener('mousedown', shoot, false);
+addEventListener('mousemove', tellPos, false);
+
+
+
+</script>
+
+</body>
+</html>
